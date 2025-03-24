@@ -73,7 +73,11 @@ def main(script_args, training_args, model_args):
         init_wandb_training(training_args)
 
     # Load the dataset
-    dataset = load_dataset(script_args.dataset_name, name=script_args.dataset_config)
+    # dataset = load_dataset(script_args.dataset_name, name=script_args.dataset_config)
+    dataset = load_dataset('parquet', data_files={
+        'train': '/home/dkidna/Search-R1/data3/nq_search/train.parquet', 
+        'test': '/home/dkidna/Search-R1/data3/nq_search/test.parquet'
+    })
 
     ################
     # Load tokenizer
@@ -81,23 +85,23 @@ def main(script_args, training_args, model_args):
     tokenizer = get_tokenizer(model_args, training_args)
 
     # Get reward functions from the registry
-    reward_funcs = get_reward_funcs(script_args.reward_funcs)
+    reward_funcs = get_reward_funcs(script_args)
 
     # Format into conversation
-    def make_conversation(example):
-        prompt = []
+    # def make_conversation(example):
+    #     prompt = []
 
-        if training_args.system_prompt is not None:
-            prompt.append({"role": "system", "content": training_args.system_prompt})
+    #     if training_args.system_prompt is not None:
+    #         prompt.append({"role": "system", "content": training_args.system_prompt})
 
-        prompt.append({"role": "user", "content": example["problem"]})
-        return {"prompt": prompt}
+    #     prompt.append({"role": "user", "content": example["problem"]})
+    #     return {"prompt": prompt}
 
-    dataset = dataset.map(make_conversation)
+    # dataset = dataset.map(make_conversation)
 
-    for split in dataset:
-        if "messages" in dataset[split].column_names:
-            dataset[split] = dataset[split].remove_columns("messages")
+    # for split in dataset:
+    #     if "messages" in dataset[split].column_names:
+    #         dataset[split] = dataset[split].remove_columns("messages")
 
     logger.info("*** Initializing model kwargs ***")
     torch_dtype = (
@@ -125,6 +129,7 @@ def main(script_args, training_args, model_args):
         callbacks=get_callbacks(training_args, model_args),
         processing_class=tokenizer,
     )
+    # trainer.model.tokenizer.padding_side = "left"
 
     ###############
     # Training loop
@@ -163,12 +168,19 @@ def main(script_args, training_args, model_args):
     ##########
     # Evaluate
     ##########
-    if training_args.do_eval:
-        logger.info("*** Evaluate ***")
-        metrics = trainer.evaluate()
-        metrics["eval_samples"] = len(dataset[script_args.dataset_test_split])
-        trainer.log_metrics("eval", metrics)
-        trainer.save_metrics("eval", metrics)
+    # if training_args.do_eval:
+    #     logger.info("*** Evaluate ***")
+        
+    #     tokenizer = get_tokenizer(model_args, training_args)
+
+    #     # 强制设置padding方向为left以适配Qwen2的Flash Attention要求
+    #     trainer.tokenizer.padding_side = "left"  # <-- 关键修复
+    #     # tokenizer.padding_side = "left"  # <-- 关键修复
+        
+    #     metrics = trainer.evaluate()
+    #     metrics["eval_samples"] = len(dataset[script_args.dataset_test_split])
+    #     trainer.log_metrics("eval", metrics)
+    #     trainer.save_metrics("eval", metrics)
 
     #############
     # push to hub
