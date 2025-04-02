@@ -1,5 +1,7 @@
 # Model arguments
-model_name_or_path: Qwen/Qwen2.5-7B-Instruct
+# model_name_or_path: Qwen/Qwen2.5-7B-Instruct
+# model_name_or_path: data/Qwen-2.5-7B-Instruct-Simple-RL
+model_name_or_path: data/Qwen-2.5-7B-Instruct-Simple-RL-epoch-16-2
 model_revision: main
 torch_dtype: bfloat16
 attn_implementation: flash_attention_2
@@ -35,8 +37,8 @@ max_completion_length: 1024
 max_steps: -1
 num_generations: 3
 # num_generations: 7
-num_train_epochs: 3
-output_dir: data/Qwen-2.5-7B-Instruct-Simple-RL-2
+num_train_epochs: 1
+output_dir: data/Qwen-2.5-7B-Instruct-Simple-RL-epoch-17-2
 # resume_from_checkpoint: data/Qwen-2.5-7B-Instruct-Simple-RL
 overwrite_output_dir: false
 per_device_eval_batch_size: 8
@@ -47,15 +49,15 @@ report_to:
 reward_funcs:
 - accuracy
 - format
-- reasoning_steps
+# - reasoning_steps
 - repetition_penalty
 - tag_count
 reward_weights:
 - 2.0
-- 0.5
+- 0.3
+# - 0.3
 - 1.0
-- 1.0
-- 1.0
+- 0.3
 save_strategy: "no"
 seed: 42
 warmup_ratio: 0.1

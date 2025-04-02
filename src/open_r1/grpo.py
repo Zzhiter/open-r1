@@ -75,8 +75,8 @@ def main(script_args, training_args, model_args):
     # Load the dataset
     # dataset = load_dataset(script_args.dataset_name, name=script_args.dataset_config)
     dataset = load_dataset('parquet', data_files={
-        'train': '/home/dkidna/Search-R1/data3/nq_search/train.parquet', 
-        'test': '/home/dkidna/Search-R1/data3/nq_search/test.parquet'
+        'train': '/home/dkidna/Search-R1/data6/nq_search/train.parquet', 
+        'test': '/home/dkidna/Search-R1/data6/nq_search/test.parquet'
     })
 
     ################

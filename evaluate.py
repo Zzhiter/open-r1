@@ -5,10 +5,10 @@ from vllm import LLM, SamplingParams
 import pandas as pd
 
 # 配置参数
-BASE_MODEL_PATH = "Qwen/Qwen2.5-Math-7B-Instruct"
-# BASE_MODEL_PATH = "/home/dkidna/open-r1/data/Qwen-2.5-7B-Instruct-Simple-RL"  # 替换为你的训练好的模型路径
-PARQUET_FILE_TRAIN = "/home/dkidna/Search-R1/data3/nq_search/train.parquet"
-PARQUET_FILE_TEST = "/home/dkidna/Search-R1/data3/nq_search/test.parquet"
+# BASE_MODEL_PATH = "Qwen/Qwen2.5-Math-7B-Instruct"
+BASE_MODEL_PATH = "/home/dkidna/open-r1/data/Qwen-2.5-7B-Instruct-Simple-RL-epoch-15-2"  # 替换为你的训练好的模型路径
+PARQUET_FILE_TRAIN = "/home/dkidna/Search-R1/data6/nq_search/train.parquet"
+PARQUET_FILE_TEST = "/home/dkidna/Search-R1/data6/nq_search/test.parquet"
 OUTPUT_DIR = "./results"  # 保存测试结果的目录
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -21,7 +21,7 @@ llm = LLM(model=BASE_MODEL_PATH)
 sampling_params = SamplingParams(
     temperature=0.7,  # 可根据需要调整
     top_p=0.95,
-    max_tokens=256  # 根据任务需求调整最大生成长度
+    max_tokens=512  # 根据任务需求调整最大生成长度
 )
 
 def load_data_from_parquet(parquet_path):
@@ -116,7 +116,7 @@ def evaluate_model(_class="test"):
     print(f"Accuracy: {accuracy:.2f}%")
 
     # 保存结果到 JSON 文件
-    output_path = os.path.join(OUTPUT_DIR, f"{_class}_results_old.json")
+    output_path = os.path.join(OUTPUT_DIR, f"{_class}_results.json")
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=4)
 

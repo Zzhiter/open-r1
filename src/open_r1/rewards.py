@@ -110,21 +110,38 @@ def tag_count_reward(completions, **kwargs) -> list[float]:
     return [count_tags(c) for c in contents]
 
 
+# def reasoning_steps_reward(completions, **kwargs):
+#     r"""Reward function that checks for clear step-by-step reasoning.
+#     Regex pattern:
+#         Step \d+: - matches "Step 1:", "Step 2:", etc.
+#         ^\d+\. - matches numbered lists like "1.", "2.", etc. at start of line
+#         \n- - matches bullet points with hyphens
+#         \n\* - matches bullet points with asterisks
+#         First,|Second,|Next,|Finally, - matches transition words
+#     """
+#     pattern = r"(Step \d+:|^\d+\.|\n-|\n\*|First,|Second,|Next,|Finally,)"
+#     completion_contents = [completion[0]["content"] for completion in completions]
+#     matches = [len(re.findall(pattern, content)) for content in completion_contents]
+
+#     # Magic number 3 to encourage 3 steps and more, otherwise partial reward
+#     return [min(1.0, count / 3) for count in matches]
+
 def reasoning_steps_reward(completions, **kwargs):
-    r"""Reward function that checks for clear step-by-step reasoning.
-    Regex pattern:
+    r"""Reward function that checks for clear step-by-step reasoning and backtracking/rechecking.
+    Regex pattern for steps:
         Step \d+: - matches "Step 1:", "Step 2:", etc.
         ^\d+\. - matches numbered lists like "1.", "2.", etc. at start of line
         \n- - matches bullet points with hyphens
         \n\* - matches bullet points with asterisks
         First,|Second,|Next,|Finally, - matches transition words
+    Regex pattern for backtracking/rechecking:
+        Wait\?|Let me check|Let me re-examine|Let me think again|Going back to
     """
-    pattern = r"(Step \d+:|^\d+\.|\n-|\n\*|First,|Second,|Next,|Finally,)"
+    backtrack_pattern = r"(Wait|Let me re-examine|Let me think again|Going back to|Hmm, maybe|I need to double-check)"
     completion_contents = [completion[0]["content"] for completion in completions]
-    matches = [len(re.findall(pattern, content)) for content in completion_contents]
-
-    # Magic number 3 to encourage 3 steps and more, otherwise partial reward
-    return [min(1.0, count / 3) for count in matches]
+    matches = [len(re.findall(backtrack_pattern, content, re.IGNORECASE)) for content in completion_contents]
+    # 每匹配1次回溯短语奖励0.3分，最高1.0
+    return [min(1.5, count * 0.3) for count in matches]
 
 
 def len_reward(completions: list[Dict[str, str]], solution: list[str], **kwargs) -> float:
